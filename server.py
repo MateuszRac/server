@@ -27,7 +27,7 @@ for device_adress in onewire_devices:
             timestamp = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
             
             if T > -50 and T<100:
-                data_array.extend({"variable": device_adress, "points":[[timestamp,T]]})
+                data_array.append({"variable": device_adress, "points":[[timestamp,T]]})
         else:
             print("No match found")
 
