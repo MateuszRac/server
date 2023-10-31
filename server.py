@@ -55,7 +55,7 @@ except:
 
     
     
-url = "http://popruntheworld.pl/raspberry/rpi.php"  # Replace with the actual URL
+url = "http://popruntheworld.pl/raspberry/rpi_python.php"  # Replace with the actual URL
     
     
 # Set the headers to specify that you are sending JSON data
@@ -64,7 +64,7 @@ headers = {
 }
 
 # Make the POST request
-response = requests.post(url, data=data_array, headers=headers)
+response = requests.post(url, data=str(data_array), headers=headers)
 
 # Check the response
 if response.status_code == 200:
