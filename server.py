@@ -6,39 +6,6 @@ import board
 import requests
 
 
-
-
-# Replace these values with your own database credentials
-db_config = {
-    "host": "poprunthyb216.mysql.db",
-    "user": "poprunthyb216",
-    "password": "your_password",
-    "database": "poprunthyb216"
-}
-
-def upload_to_db(db_config,variable,timestamp,value):
-    
-    conn = mysql.connector.connect(**db_config)
-    
-    # Create a cursor object to interact with the database
-    cursor = conn.cursor()
-
-    # Construct the SQL query to insert data into a specific table
-    table_name = "rpi"
-    columns = "variable, timestamp, value"
-    values = "'"+variable+"', '"+timestamp+"', '"+str(value)+"'"
-    insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({variable})"
-
-    # Execute the query with the data
-    cursor.execute(insert_query)
-
-    # Commit the changes to the database
-    conn.commit()
-
-    # Close the cursor and the database connection
-    cursor.close()
-    conn.close()
-
 onewiredir = '/sys/bus/w1/devices/'
 onewire_devices = os.listdir(onewiredir)
 
@@ -81,8 +48,8 @@ try:
     current_time = datetime.utcnow()
     timestamp = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    data_array.append({"variable": 'AHT20_T', "points":[[timestamp,round(sensor.temperature,2)]]})
-    data_array.append({"variable": 'AHT20_RH', "points":[[timestamp,round(sensor.relative_humidity,2)]]})
+    data_array.append({"variable": "AHT20_T", "points":[[timestamp,round(sensor.temperature,2)]]})
+    data_array.append({"variable": "AHT20_RH", "points":[[timestamp,round(sensor.relative_humidity,2)]]})
 except:
     next
 
