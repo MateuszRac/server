@@ -51,9 +51,36 @@ try:
     data_array.append({"variable": "AHT20_T", "points":[[timestamp,round(sensor.temperature,2)]]})
     data_array.append({"variable": "AHT20_RH", "points":[[timestamp,round(sensor.relative_humidity,2)]]})
 except:
-    next
+    print('AHT20 error')
 
     
+
+    
+    
+    
+    
+#BMP280 data
+
+from bmp280 import BMP280
+
+try:
+    from smbus2 import SMBus
+except ImportError:
+    from smbus import SMBus
+
+
+# Initialise the BMP280
+try:
+    bus = SMBus(1)
+    bmp280 = BMP280(i2c_dev=bus)
+
+    current_time = datetime.utcnow()
+    timestamp = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    data_array.append({"variable": "BMP280_T", "points":[[timestamp,round(bmp280.get_temperature(),2)]]})
+    data_array.append({"variable": "BMP280_P", "points":[[timestamp,round(bmp280.get_pressure(),2)]]})
+except:
+    print('BMP280 error')
     
 url = "http://popruntheworld.pl/raspberry/rpi_python.php"  # Replace with the actual URL
     
