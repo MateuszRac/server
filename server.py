@@ -82,6 +82,30 @@ try:
 except:
     print('BMP280 error')
     
+    
+    
+    
+    
+    
+    
+#IR
+
+from mlx90614 import MLX90614
+
+try:
+    bus = SMBus(1)
+    sensor = MLX90614(bus, address=0x5A)
+    
+    data_array.append({"variable": "IR_AMB", "points":[[timestamp,round(sensor.get_amb_temp(),2)]]})
+    data_array.append({"variable": "IR_OBJ", "points":[[timestamp,round(sensor.get_obj_temp(),2)]]})
+    
+    bus.close()
+except:
+    print('IR error')
+
+
+    
+    
 url = "http://popruntheworld.pl/raspberry/rpi_python.php"  # Replace with the actual URL
     
     
