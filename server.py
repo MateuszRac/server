@@ -4,6 +4,10 @@ from datetime import datetime
 import adafruit_ahtx0
 import board
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 onewiredir = '/sys/bus/w1/devices/'
@@ -131,9 +135,18 @@ print(data_array)
 
 
 
+#wunderground
+from urllib import parse
+
+wurl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php'
 
 
+current_time = datetime.utcnow()
+timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
+params = {'ID': os.getenv('WU_ID'), 'PASSWORD': os.getenv('WU_PASS'), 'dateutc':timestamp}
+
+print(wurl + parse.urlencode(params))
 
 
 
