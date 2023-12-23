@@ -161,7 +161,7 @@ b_height = os.getenv('B_HEIGHT')
 
 for var in data_array:
     if var['variable'] == 'BMP280_P':
-        params['baromin'] = mslp(var['points'][0][1],t_pressure,b_height)/33.86389
+        params['baromin'] = mslp(var['points'][0][1],t_pressure,float(b_height))/33.86389
 
 print(wurl + parse.urlencode(params))
 
