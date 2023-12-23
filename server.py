@@ -138,13 +138,20 @@ print(data_array)
 #wunderground
 from urllib import parse
 
-wurl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php'
+wurl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?'
 
 
 current_time = datetime.utcnow()
 timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
 params = {'ID': os.getenv('WU_ID'), 'PASSWORD': os.getenv('WU_PASS'), 'dateutc':timestamp}
+
+
+for var in data_array:
+    if var['variable'] == 'BMP280_P':
+        
+        params['baromin'] = var['points'][0][1]/33.86389
+
 
 print(wurl + parse.urlencode(params))
 
