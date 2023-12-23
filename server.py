@@ -140,7 +140,7 @@ from urllib import parse
 import numpy as np
 
 def mslp(P,T,H):
-    return P*np.exp(2.30259*H/(18400*(1+0.003667*(T+0.0025*H))))
+    return P*np.exp(2.30259*H/(18400.0*(1+0.003667*(T+0.0025*H))))
 
 
 
