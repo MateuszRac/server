@@ -11,7 +11,7 @@ fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Linear Plot'))
 fig.update_layout(title='Interactive Linear Plot', xaxis_title='X-axis', yaxis_title='Y-axis')
 
 # Save the plot as an HTML file
-html_file_path = '/var/www/index.html'
+html_file_path = '/var/www/html/index.html'
 fig.write_html(html_file_path)
 
 print(f"Interactive HTML file saved at: {html_file_path}")
