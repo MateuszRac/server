@@ -1,17 +1,26 @@
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
+import os
 
-# Generate data for linear plot
-x = [i for i in range(10)]
-y = [2 * i + 5 for i in x]
+# Data for the linear plot
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 6, 8, 10]
 
-# Create an interactive plot
-fig = make_subplots(rows=1, cols=1)
-fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Linear Plot'))
-fig.update_layout(title='Interactive Linear Plot', xaxis_title='X-axis', yaxis_title='Y-axis')
+# Create a linear plot
+plt.plot(x, y, label='Linear Plot')
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.title('Linear Plot Example')
+plt.legend()
 
-# Save the plot as an HTML file
-html_file_path = '/var/www/html/index.html'
-fig.write_html(html_file_path)
+# Save the plot to the specified location
+output_path = '/var/www/html/plot.png'
 
-print(f"Interactive HTML file saved at: {html_file_path}")
+# Ensure the directory exists
+output_directory = os.path.dirname(output_path)
+os.makedirs(output_directory, exist_ok=True)
+
+# Save the plot
+plt.savefig(output_path)
+
+# Show the plot (optional)
+plt.show()
