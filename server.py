@@ -137,6 +137,14 @@ print(data_array)
 
 #wunderground
 from urllib import parse
+import numpy as np
+
+def mslp(P,T,H):
+    return P*np.exp(2.30259*H/(18400*(1+0.003667*(T+0.0025*H))))
+
+
+
+
 
 wurl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?'
 
@@ -147,11 +155,13 @@ timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
 params = {'ID': os.getenv('WU_ID'), 'PASSWORD': os.getenv('WU_PASS'), 'dateutc':timestamp}
 
 
+
+t_pressure = 2.0
+b_height = os.getenv('B_HEIGHT')
+
 for var in data_array:
     if var['variable'] == 'BMP280_P':
-        
-        params['baromin'] = var['points'][0][1]/33.86389
-
+        params['baromin'] = mslp(var['points'][0][1],t_pressure,b_height)/33.86389
 
 print(wurl + parse.urlencode(params))
 
