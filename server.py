@@ -155,7 +155,8 @@ for var in data_array:
 
 print(wurl + parse.urlencode(params))
 
-
+x = requests.get(wurl + parse.urlencode(params))
+print(x.status_code)
 
 
 
