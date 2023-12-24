@@ -142,7 +142,9 @@ import numpy as np
 def mslp(P,T,H):
     return P*np.exp(2.30259*H/(18400.0*(1+0.003667*(T+0.0025*H))))
 
-
+def c_to_f(celsius):
+    fahrenheit = (celsius * 9/5) + 32
+    return fahrenheit
 
 
 
@@ -157,11 +159,22 @@ params = {'ID': os.getenv('WU_ID'), 'PASSWORD': os.getenv('WU_PASS'), 'dateutc':
 
 
 t_pressure = 2.0
+
 b_height = os.getenv('B_HEIGHT')
 
 for var in data_array:
+        
+    if var['variable']== '28-3ce104570b5f':
+        params['tempf'] = c_to_f(var['points'][0][1])
+        t_pressure = var['points'][0][1]
+        
+    if var['variable']== '28-3c6204572bfc':
+        params['temp2f'] = c_to_f(var['points'][0][1])
+        t_pressure = var['points'][0][1]
+        
     if var['variable'] == 'BMP280_P':
         params['baromin'] = mslp(var['points'][0][1],t_pressure,float(b_height))/33.86389
+        
 
 print(wurl + parse.urlencode(params))
 
