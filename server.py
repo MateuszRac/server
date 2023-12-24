@@ -27,7 +27,7 @@ for device_adress in onewire_devices:
             with open(device_file, 'r') as file:
                 file_content = file.read()
 
-            pattern = r't=(\d+)'
+            pattern = r't=((-?)\d+)'
             match = re.search(pattern, file_content)
 
             if match:
