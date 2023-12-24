@@ -38,7 +38,7 @@ for device_adress in onewire_devices:
                 current_time = datetime.utcnow()
                 timestamp = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-                if T > -50 and T<100:
+                if T<=100:
                     data_array.append({"variable": device_adress, "points":[[timestamp,T]]})
                     upload_to_db(db_config,device_adress,timestamp,T)
             else:
