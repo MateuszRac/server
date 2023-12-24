@@ -165,11 +165,11 @@ b_height = os.getenv('B_HEIGHT')
 for var in data_array:
         
     if var['variable']== '28-3ce104570b5f':
-        params['tempf'] = c_to_f(var['points'][0][1])
+        params['soiltempf'] = c_to_f(var['points'][0][1])
         t_pressure = var['points'][0][1]
         
     if var['variable']== '28-3c6204572bfc':
-        params['temp2f'] = c_to_f(var['points'][0][1])
+        params['tempf'] = c_to_f(var['points'][0][1])
         t_pressure = var['points'][0][1]
         
     if var['variable'] == 'BMP280_P':
