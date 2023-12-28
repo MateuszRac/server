@@ -5,6 +5,7 @@ import adafruit_ahtx0
 import board
 import requests
 from dotenv import load_dotenv
+import statistics
 
 load_dotenv()
 
@@ -96,16 +97,21 @@ except:
 
 from mlx90614 import MLX90614
 
-try:
-    bus = SMBus(1)
-    sensor = MLX90614(bus, address=0x5A)
+t_obj_list = []
+for i in range(0,10):
+    try:
+        bus = SMBus(1)
+        sensor = MLX90614(bus, address=0x5A)
+        
+        t_obj = sensor.get_obj_temp()
+        t_obj_list.append(t_obj)
+        
+        bus.close()
+    except:
+        print('IR error')
     
-    data_array.append({"variable": "IR_AMB", "points":[[timestamp,round(sensor.get_amb_temp(),2)]]})
-    data_array.append({"variable": "IR_OBJ", "points":[[timestamp,round(sensor.get_obj_temp(),2)]]})
-    
-    bus.close()
-except:
-    print('IR error')
+if len(obj_list) >= 4:
+    data_array.append({"variable": "IR_AMB", "points":[[timestamp,round(statistics.median(t_obj_list),2)]]})
 
 
     
