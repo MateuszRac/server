@@ -6,6 +6,7 @@ import board
 import requests
 from dotenv import load_dotenv
 import statistics
+import time
 
 load_dotenv()
 
@@ -107,8 +108,10 @@ for i in range(0,10):
         t_obj_list.append(t_obj)
         
         bus.close()
+        time.sleep(1)
     except:
         print('IR error')
+        break
     
 if len(t_obj_list) >= 4:
     data_array.append({"variable": "IR_OBJ", "points":[[timestamp,round(statistics.median(t_obj_list),2)]]})
