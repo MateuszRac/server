@@ -110,7 +110,7 @@ for i in range(0,10):
     except:
         print('IR error')
     
-if len(obj_list) >= 4:
+if len(t_obj_list) >= 4:
     data_array.append({"variable": "IR_AMB", "points":[[timestamp,round(statistics.median(t_obj_list),2)]]})
 
 
