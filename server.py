@@ -62,29 +62,21 @@ except:
     
 
     
-    
-    
-    
-#BMP280 data
-
-from bmp280 import BMP280
-
-try:
-    from smbus2 import SMBus
-except ImportError:
-    from smbus import SMBus
-
+import board
+import adafruit_bmp280
 
 # Initialise the BMP280
 try:
-    bus = SMBus(1)
-    bmp280 = BMP280(i2c_dev=bus)
-
+    
+    i2c = board.I2C()
+    bmp280 = adafruit_bmp280.Adafruit_BMP280_I2C(i2c, address=0x76)
+    bmp280.sea_level_pressure = 1013.25
+    
     current_time = datetime.utcnow()
     timestamp = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    data_array.append({"variable": "BMP280_T", "points":[[timestamp,round(bmp280.get_temperature(),2)]]})
-    data_array.append({"variable": "BMP280_P", "points":[[timestamp,round(bmp280.get_pressure(),2)]]})
+    data_array.append({"variable": "BMP280_T", "points":[[timestamp,round(bmp280.temperature,2)]]})
+    data_array.append({"variable": "BMP280_P", "points":[[timestamp,round(bmp280.pressure,2)]]})
 except:
     print('BMP280 error')
     
