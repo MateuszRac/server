@@ -126,7 +126,7 @@ try:
     df.to_sql('meteo', con=engine, if_exists='append', index=False)
     
 except:
-    
+    next
     
     
 url = "http://popruntheworld.pl/raspberry/rpi_python.php"  # Replace with the actual URL
