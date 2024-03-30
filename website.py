@@ -1,26 +1,50 @@
+import pandas as pd
+from sqlalchemy import create_engine, MetaData, Table, select, func
+from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-import os
 
-# Data for the linear plot
-x = [1, 2, 3, 4, 5]
-y = [2, 4, 6, 8, 10]
+# Create SQLAlchemy engine
+engine = create_engine('mysql+pymysql://pi:raspberry@localhost:3306/db')
 
-# Create a linear plot
-plt.plot(x, y, label='Linear Plot')
-plt.xlabel('X-axis')
-plt.ylabel('Y-axis')
-plt.title('Linear Plot Example')
-plt.legend()
+# Reflect the necessary table
+metadata = MetaData()
+meteo_table = Table('meteo', metadata, autoload=True, autoload_with=engine)
 
-# Save the plot to the specified location
-output_path = '/var/www/html/plot.png'
+# Calculate the date 7 days ago
+seven_days_ago = datetime.now() - timedelta(days=7)
 
-# Ensure the directory exists
-output_directory = os.path.dirname(output_path)
-os.makedirs(output_directory, exist_ok=True)
+# Build the select query with the conditions
+query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
+    (meteo_table.c.timestamp >= seven_days_ago) &
+    (meteo_table.c.variable == 'BMP280_P')
+)
 
-# Save the plot
-plt.savefig(output_path)
+# Execute the query and fetch the results
+result_proxy = engine.execute(query)
+result_set = result_proxy.fetchall()
 
-# Show the plot (optional)
-plt.show()
+# Convert the result set into a Pandas DataFrame
+df = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+
+# Create a plot with custom styling
+plt.figure(figsize=(10, 6))
+plt.plot(df['timestamp'], df['value'], color='blue', linestyle='-', marker='o', markersize=5, label='Value')
+plt.title('Plot of Value vs Timestamp', fontsize=16)
+plt.xlabel('Timestamp', fontsize=12)
+plt.ylabel('Value', fontsize=12)
+plt.xticks(fontsize=10, rotation=45)
+plt.yticks(fontsize=10)
+plt.grid(True, linestyle='--', alpha=0.7)
+
+# Add legend
+plt.legend(loc='upper right', fontsize=12)
+
+# Save the plot as an image
+plt.savefig('/var/www/html/img.png', bbox_inches='tight')
+
+# Close the plot
+plt.close()
+
+# Close the result proxy and dispose of the engine
+result_proxy.close()
+engine.dispose()
