@@ -46,7 +46,7 @@ for device_adress in onewire_devices:
 
                 if T<=100:
                     data_array.append({"variable": device_adress, "points":[[timestamp,T]]})
-                    df.loc[len(df)] = [device_adress,timestamp,T]
+                    df.loc[len(df)] = [device_adress,current_time,T]
             else:
                 print("No match found")
     except:
@@ -61,8 +61,8 @@ try:
     data_array.append({"variable": "AHT20_T", "points":[[timestamp,round(sensor.temperature,2)]]})
     data_array.append({"variable": "AHT20_RH", "points":[[timestamp,round(sensor.relative_humidity,2)]]})
     
-    df.loc[len(df)] = ['AHT20_T',timestamp,round(sensor.temperature,2)]
-    df.loc[len(df)] = ["AHT20_RH",timestamp,round(sensor.relative_humidity,2)]
+    df.loc[len(df)] = ['AHT20_T',current_time,round(sensor.temperature,2)]
+    df.loc[len(df)] = ["AHT20_RH",current_time,round(sensor.relative_humidity,2)]
 except:
     print('AHT20 error')
 
@@ -85,8 +85,8 @@ try:
     data_array.append({"variable": "BMP280_T", "points":[[timestamp,round(bmp280.temperature,2)]]})
     data_array.append({"variable": "BMP280_P", "points":[[timestamp,round(bmp280.pressure,2)]]})
     
-    df.loc[len(df)] = ["BMP280_T",timestamp,round(bmp280.temperature,2)]
-    df.loc[len(df)] = ["BMP280_P",timestamp,round(bmp280.pressure,2)]
+    df.loc[len(df)] = ["BMP280_T",current_time,round(bmp280.temperature,2)]
+    df.loc[len(df)] = ["BMP280_P",current_time,round(bmp280.pressure,2)]
     
 except:
     print('BMP280 error')
@@ -118,7 +118,7 @@ for i in range(0,10):
     
 if len(t_obj_list) >= 4:
     data_array.append({"variable": "IR_OBJ", "points":[[timestamp,round(statistics.median(t_obj_list),2)]]})
-    df.loc[len(df)] = ["IR_OBJ",timestamp,round(statistics.median(t_obj_list),2)]
+    df.loc[len(df)] = ["IR_OBJ",current_time,round(statistics.median(t_obj_list),2)]
 
     
     
