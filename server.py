@@ -123,11 +123,12 @@ if len(t_obj_list) >= 4:
     
     
 try:
+    print(df)
     engine = create_engine('mysql+pymysql://pi:raspberry@localhost:3306/db')
     df.to_sql('meteo', con=engine, if_exists='append', index=False)
     
-except:
-    next
+except Exception as e:
+    print(e)
     
     
 url = "http://popruntheworld.pl/raspberry/rpi_python.php"  # Replace with the actual URL
