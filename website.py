@@ -3,6 +3,65 @@ from sqlalchemy import create_engine, MetaData, Table, select, func
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
+
+
+from pykalman import KalmanFilter
+
+def remove_outliers(dataframe, measurement_std_dev=1, process_std_dev=1):
+    # Extract timestamps and values from the dataframe
+    timestamps = dataframe['timestamp'].values
+    values = dataframe['value'].values
+    
+    # Create a Kalman filter
+    kf = KalmanFilter(initial_state_mean=0, n_dim_obs=1)
+
+    # Initialize arrays to store filtered values and variance
+    filtered_values = np.zeros_like(values)
+    filtered_values_variance = np.zeros_like(values)
+
+    # Initialize the Kalman filter state
+    state_mean = 0
+    state_covariance = 1
+
+    for i in range(len(values)):
+        # Predict the next state
+        state_mean_prior, state_covariance_prior = kf.filter_update(
+            state_mean, state_covariance
+        )
+        
+        # Update the state using the measurement
+        state_mean, state_covariance = kf.filter_update(
+            state_mean_prior, state_covariance_prior, observation=values[i],
+            observation_covariance=measurement_std_dev ** 2 + process_std_dev ** 2
+        )
+        
+        # Store the filtered value and variance
+        filtered_values[i] = state_mean
+        filtered_values_variance[i] = state_covariance
+    
+    # Add the filtered values and variance to the dataframe
+    dataframe['filtered_value'] = filtered_values
+    dataframe['filtered_variance'] = filtered_values_variance
+    
+    return dataframe
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Create SQLAlchemy engine
 engine = create_engine('mysql+pymysql://pi:raspberry@localhost:3306/db')
 
@@ -131,14 +190,15 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df4 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-
+df4_clean = remove_outliers(df4)
 
 
 
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
-plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', markersize=5, label='Cisnienie bezwzgledne')
-plt.title('Piec', fontsize=16)
+plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
+plt.plot(df4_clean['timestamp'], df4_clean['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
+plt.title('Cisnienie atmosferyczne', fontsize=16)
 plt.xlabel('Data', fontsize=12)
 plt.ylabel('stopnie C', fontsize=12)
 plt.xticks(fontsize=10, rotation=45)
