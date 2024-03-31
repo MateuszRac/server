@@ -12,7 +12,7 @@ def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold
         start_index = max(0, i - window_size // 2)
         end_index = min(len(dataframe), i + window_size // 2 + 1)
         
-        window = dataframe.iloc[start_index:end_index][column_name]
+        window = dataframe.iloc[start_index:end_index][column_name].astype(float)  # Convert to float
         
         Q1 = window.quantile(0.25)
         Q3 = window.quantile(0.75)
