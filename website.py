@@ -23,8 +23,8 @@ def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold
         
         if dataframe.iloc[i][column_name] >= lower_bound and dataframe.iloc[i][column_name] <= upper_bound:
             filtered_indices.append(i)
-    
-    return dataframe.iloc[filtered_indices]
+        df = dataframe.iloc[filtered_indices]
+    return df.reset_index(drop=True)
 
 
 
