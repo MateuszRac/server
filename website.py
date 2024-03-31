@@ -87,7 +87,7 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df1 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-#df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
+df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
 
 
 
@@ -104,8 +104,8 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df2 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-#df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
-
+df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
+df2['value'] = df2['value']+1.7
 
 
 # Create a plot with custom styling
