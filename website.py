@@ -197,7 +197,7 @@ df4_clean = remove_outliers(df4)
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
 plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
-plt.plot(df4_clean['timestamp'], df4_clean['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
+plt.plot(df4_clean['timestamp'], df4_clean['value'], color='black', linestyle='-', label='Cisnienie bezwzgledne')
 plt.title('Cisnienie atmosferyczne', fontsize=16)
 plt.xlabel('Data', fontsize=12)
 plt.ylabel('stopnie C', fontsize=12)
