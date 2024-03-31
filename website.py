@@ -246,21 +246,19 @@ file_content = file_content.replace('_T1_DATE_', df1_row.timestamp.strftime('%Y-
 file_content = file_content.replace('_T1_', str(df1_row.value))
 
 
-df2_row = df2.loc[df1['timestamp'].idxmax()]
+df2_row = df2.loc[df2['timestamp'].idxmax()]
 file_content = file_content.replace('_T2_DATE_', df2_row.timestamp.strftime('%Y-%m-%d %H:%M'))
 file_content = file_content.replace('_T2_', str(df2_row.value))
 
 
-df3_row = df3.loc[df1['timestamp'].idxmax()]
+df3_row = df3.loc[df3['timestamp'].idxmax()]
 file_content = file_content.replace('_TPIEC_DATE_', df3_row.timestamp.strftime('%Y-%m-%d %H:%M'))
 file_content = file_content.replace('_TPIEC_', str(df3_row.value))
 
 
-df4_row = df4.loc[df1['timestamp'].idxmax()]
+df4_row = df4.loc[df4['timestamp'].idxmax()]
 file_content = file_content.replace('_PABS_DATE_', df4_row.timestamp.strftime('%Y-%m-%d %H:%M'))
 file_content = file_content.replace('_PABS_', str(df4_row.value))
-
-
 
 
 
