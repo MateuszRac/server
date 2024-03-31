@@ -152,7 +152,7 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df3 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
+#df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
 
 
@@ -227,3 +227,41 @@ plt.close()
 # Close the result proxy and dispose of the engine
 result_proxy.close()
 engine.dispose()
+
+
+
+
+#html table
+
+
+
+
+file_path = '/var/www/html/template.html'
+with open(file_path, 'r') as file:
+    file_content = file.read()
+
+
+df1_row = df1.loc[df1['timestamp'].idxmax()]
+file_content = file_content.replace('_T1_', str(df1_row.value))
+file_content = file_content.replace('_T1_DATE_', df1_row.timestamp.strftime('%Y-%m-%d %H:%M'))
+
+
+
+df2_row = df2.loc[df1['timestamp'].idxmax()]
+df3_row = df3.loc[df1['timestamp'].idxmax()]
+df4_row = df4.loc[df1['timestamp'].idxmax()]
+
+
+
+
+
+
+
+
+
+# Write the modified content back to the file
+with open('/var/www/html/index.html', 'w') as file:
+    file.write(file_content)
+
+
+
