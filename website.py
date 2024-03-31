@@ -5,45 +5,26 @@ import matplotlib.pyplot as plt
 
 
 
-from pykalman import KalmanFilter
-
-def remove_outliers(dataframe, measurement_std_dev=1, process_std_dev=1):
-    # Extract timestamps and values from the dataframe
-    timestamps = dataframe['timestamp'].values
-    values = dataframe['value'].values
+def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold=1.5):
+    filtered_indices = []
     
-    # Create a Kalman filter
-    kf = KalmanFilter(initial_state_mean=0, n_dim_obs=1)
-
-    # Initialize arrays to store filtered values and variance
-    filtered_values = np.zeros_like(values)
-    filtered_values_variance = np.zeros_like(values)
-
-    # Initialize the Kalman filter state
-    state_mean = 0
-    state_covariance = 1
-
-    for i in range(len(values)):
-        # Predict the next state
-        state_mean_prior, state_covariance_prior = kf.filter_update(
-            state_mean, state_covariance
-        )
+    for i in range(len(dataframe)):
+        start_index = max(0, i - window_size // 2)
+        end_index = min(len(dataframe), i + window_size // 2 + 1)
         
-        # Update the state using the measurement
-        state_mean, state_covariance = kf.filter_update(
-            state_mean_prior, state_covariance_prior, observation=values[i],
-            observation_covariance=measurement_std_dev ** 2 + process_std_dev ** 2
-        )
+        window = dataframe.iloc[start_index:end_index][column_name]
         
-        # Store the filtered value and variance
-        filtered_values[i] = state_mean
-        filtered_values_variance[i] = state_covariance
+        Q1 = window.quantile(0.25)
+        Q3 = window.quantile(0.75)
+        IQR = Q3 - Q1
+        
+        lower_bound = Q1 - threshold * IQR
+        upper_bound = Q3 + threshold * IQR
+        
+        if dataframe.iloc[i][column_name] >= lower_bound and dataframe.iloc[i][column_name] <= upper_bound:
+            filtered_indices.append(i)
     
-    # Add the filtered values and variance to the dataframe
-    dataframe['filtered_value'] = filtered_values
-    dataframe['filtered_variance'] = filtered_values_variance
-    
-    return dataframe
+    return dataframe.iloc[filtered_indices]
 
 
 
@@ -190,7 +171,7 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df4 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-df4_clean = remove_outliers(df4)
+df4_clean = remove_outliers_with_window(df4,'value',window_size=10, threshold=1.5)
 
 
 
