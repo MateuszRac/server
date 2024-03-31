@@ -87,7 +87,7 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df1 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-
+df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
 
 
 
@@ -104,7 +104,7 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df2 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-
+df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
 
 
 
@@ -152,13 +152,15 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df3 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-
+df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
 
 
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
-plt.plot(df3['timestamp'], df3['value'], color='red', linestyle='-', markersize=5, label='Temperatura na piecu')
+
+plot_with_gaps(df3, color='red', label='Temperatura na piecu')
+
 plt.title('Piec', fontsize=16)
 plt.xlabel('Data', fontsize=12)
 plt.ylabel('stopnie C', fontsize=12)
@@ -194,14 +196,15 @@ result_set = result_proxy.fetchall()
 
 # Convert the result set into a Pandas DataFrame
 df4 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
-df4_clean = remove_outliers_with_window(df4,'value',window_size=10, threshold=1.5)
+df4 = remove_outliers_with_window(df4,'value',window_size=10, threshold=1.5)
 
 
 
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
-plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
-plt.plot(df4_clean['timestamp'], df4_clean['value'], color='black', linestyle='-', label='Cisnienie bezwzgledne')
+#plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
+plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
+
 plt.title('Cisnienie atmosferyczne', fontsize=16)
 plt.xlabel('Data', fontsize=12)
 plt.ylabel('stopnie C', fontsize=12)
