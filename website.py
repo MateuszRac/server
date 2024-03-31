@@ -29,7 +29,26 @@ def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold
 
 
 
+def plot_with_gaps(df, color, label):
+    breaks = []
+    prev_time = None
+    for index, row in df.iterrows():
+        if prev_time is not None:
+            time_diff = (row['timestamp'] - prev_time).total_seconds()
+            if time_diff > 600:  # 10 minute gap
+                breaks.append(index)
+        prev_time = row['timestamp']
 
+    for i, break_index in enumerate(breaks):
+        if i == 0:
+            plt.plot(df.iloc[:break_index]['timestamp'], df.iloc[:break_index]['value'], color=color, linestyle='-', markersize=5, label=label)
+        else:
+            plt.plot(df.iloc[breaks[i-1]+1:break_index]['timestamp'], df.iloc[breaks[i-1]+1:break_index]['value'], color=color, linestyle='-', markersize=5)
+
+    if len(breaks) > 0:
+        plt.plot(df.iloc[breaks[-1]+1:]['timestamp'], df.iloc[breaks[-1]+1:]['value'], color=color, linestyle='-', markersize=5)
+    else:
+        plt.plot(df['timestamp'], df['value'], color=color, linestyle='-', markersize=5, label=label)
 
 
 
@@ -91,8 +110,12 @@ df2 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
 
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
-plt.plot(df1['timestamp'], df1['value'], color='red', linestyle='-', markersize=5, label='TP 1.5m')
-plt.plot(df2['timestamp'], df2['value'], color='blue', linestyle='-', markersize=5, label='TP grunt')
+
+
+plot_with_gaps(df1, color='red', label='TP 1.5m')
+plot_with_gaps(df2, color='blue', label='TP grunt')
+
+
 plt.title('Temperatura na zewnatrz', fontsize=16)
 plt.xlabel('Data', fontsize=12)
 plt.ylabel('stopnie C', fontsize=12)
