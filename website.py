@@ -51,9 +51,9 @@ df2 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
 
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
-plt.plot(df1['timestamp'], df1['value'], color='red', linestyle='-', markersize=5, label='Temperatura 2m')
-plt.plot(df2['timestamp'], df2['value'], color='blue', linestyle='-', markersize=5, label='Temperatura grunt')
-plt.title('Temperatura', fontsize=16)
+plt.plot(df1['timestamp'], df1['value'], color='red', linestyle='-', markersize=5, label='TP 1.5m')
+plt.plot(df2['timestamp'], df2['value'], color='blue', linestyle='-', markersize=5, label='TP grunt')
+plt.title('Temperatura na zewnatrz', fontsize=16)
 plt.xlabel('Data', fontsize=12)
 plt.ylabel('stopnie C', fontsize=12)
 plt.xticks(fontsize=10, rotation=45)
@@ -61,13 +61,101 @@ plt.yticks(fontsize=10)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
-plt.legend(loc='upper right', fontsize=12)
+plt.legend(loc='upper left', fontsize=12)
 
 # Save the plot as an image
-plt.savefig('/var/www/html/img.png', bbox_inches='tight')
+plt.savefig('/var/www/html/tp_week.png', bbox_inches='tight')
 
 # Close the plot
 plt.close()
+
+
+
+
+
+
+
+
+#PIEC
+# Build the select query with the conditions
+query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
+    (meteo_table.c.timestamp >= seven_days_ago) &
+    (meteo_table.c.variable == '28-0000092414da')
+)
+
+# Execute the query and fetch the results
+result_proxy = engine.execute(query)
+result_set = result_proxy.fetchall()
+
+# Convert the result set into a Pandas DataFrame
+df3 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+
+
+
+
+# Create a plot with custom styling
+plt.figure(figsize=(10, 6))
+plt.plot(df3['timestamp'], df3['value'], color='red', linestyle='-', markersize=5, label='Temperatura na piecu')
+plt.title('Piec', fontsize=16)
+plt.xlabel('Data', fontsize=12)
+plt.ylabel('stopnie C', fontsize=12)
+plt.xticks(fontsize=10, rotation=45)
+plt.yticks(fontsize=10)
+plt.grid(True, linestyle='--', alpha=0.7)
+
+# Add legend
+plt.legend(loc='upper left', fontsize=12)
+
+# Save the plot as an image
+plt.savefig('/var/www/html/piec_week.png', bbox_inches='tight')
+
+# Close the plot
+plt.close()
+
+
+
+
+
+
+
+#BMP280
+# Build the select query with the conditions
+query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
+    (meteo_table.c.timestamp >= seven_days_ago) &
+    (meteo_table.c.variable == 'BMP280_P')
+)
+
+# Execute the query and fetch the results
+result_proxy = engine.execute(query)
+result_set = result_proxy.fetchall()
+
+# Convert the result set into a Pandas DataFrame
+df4 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+
+
+
+
+# Create a plot with custom styling
+plt.figure(figsize=(10, 6))
+plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', markersize=5, label='Cisnienie bezwzgledne')
+plt.title('Piec', fontsize=16)
+plt.xlabel('Data', fontsize=12)
+plt.ylabel('stopnie C', fontsize=12)
+plt.xticks(fontsize=10, rotation=45)
+plt.yticks(fontsize=10)
+plt.grid(True, linestyle='--', alpha=0.7)
+
+# Add legend
+plt.legend(loc='upper left', fontsize=12)
+
+# Save the plot as an image
+plt.savefig('/var/www/html/p_rel_week.png', bbox_inches='tight')
+
+# Close the plot
+plt.close()
+
+
+
 
 # Close the result proxy and dispose of the engine
 result_proxy.close()
