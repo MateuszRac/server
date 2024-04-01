@@ -76,7 +76,7 @@ seven_days_ago = datetime.now() - timedelta(days=7)
 
 #T1
 # Build the select query with the conditions
-query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
+query = select([meteo_table.c.variable,meteo_table.c.timestamp, meteo_table.c.value]).where(
     (meteo_table.c.timestamp >= seven_days_ago)
 )
 
