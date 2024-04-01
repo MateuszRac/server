@@ -77,33 +77,24 @@ seven_days_ago = datetime.now() - timedelta(days=7)
 #T1
 # Build the select query with the conditions
 query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
-    (meteo_table.c.timestamp >= seven_days_ago) &
-    (meteo_table.c.variable == '28-3c6204572bfc')
+    (meteo_table.c.timestamp >= seven_days_ago)
 )
 
 # Execute the query and fetch the results
 result_proxy = engine.execute(query)
 result_set = result_proxy.fetchall()
+df = pd.DataFrame(result_set, columns=['variable','timestamp', 'value'])
+
+
 
 # Convert the result set into a Pandas DataFrame
-df1 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+df1 = df[df['variable']=='28-3c6204572bfc']
 df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
 
 
 
 #T2
-# Build the select query with the conditions
-query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
-    (meteo_table.c.timestamp >= seven_days_ago) &
-    (meteo_table.c.variable == '28-3ce104570b5f')
-)
-
-# Execute the query and fetch the results
-result_proxy = engine.execute(query)
-result_set = result_proxy.fetchall()
-
-# Convert the result set into a Pandas DataFrame
-df2 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+df2 = df[df['variable']=='28-3ce104570b5f']
 df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
 df2['value'] = df2['value'].astype(float)
 
@@ -111,18 +102,7 @@ df2['value'] = df2['value'].astype(float)
 
 
 #ATH20
-# Build the select query with the conditions
-query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
-    (meteo_table.c.timestamp >= seven_days_ago) &
-    (meteo_table.c.variable == 'AHT20_T')
-)
-
-# Execute the query and fetch the results
-result_proxy = engine.execute(query)
-result_set = result_proxy.fetchall()
-
-# Convert the result set into a Pandas DataFrame
-df_aht20_t = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+df_aht20_t = df[df['variable']=='AHT20_T']
 df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=10, threshold=1.5)
 df_aht20_t['value'] = df_aht20_t['value'].astype(float)
 
@@ -163,18 +143,7 @@ plt.close()
 
 
 #PIEC
-# Build the select query with the conditions
-query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
-    (meteo_table.c.timestamp >= seven_days_ago) &
-    (meteo_table.c.variable == '28-0000092414da')
-)
-
-# Execute the query and fetch the results
-result_proxy = engine.execute(query)
-result_set = result_proxy.fetchall()
-
-# Convert the result set into a Pandas DataFrame
-df3 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+df3 = df[df['variable']=='28-0000092414da']
 #df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
 
@@ -207,18 +176,7 @@ plt.close()
 
 
 #BMP280
-# Build the select query with the conditions
-query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
-    (meteo_table.c.timestamp >= seven_days_ago) &
-    (meteo_table.c.variable == 'BMP280_P')
-)
-
-# Execute the query and fetch the results
-result_proxy = engine.execute(query)
-result_set = result_proxy.fetchall()
-
-# Convert the result set into a Pandas DataFrame
-df4 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+df4 = df[df['variable']=='BMP280_P']
 df4 = remove_outliers_with_window(df4,'value',window_size=10, threshold=1.5)
 
 
