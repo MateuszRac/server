@@ -114,7 +114,7 @@ df2['value'] = df2['value'].astype(float)
 # Build the select query with the conditions
 query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
     (meteo_table.c.timestamp >= seven_days_ago) &
-    (meteo_table.c.variable == 'AHT20_R')
+    (meteo_table.c.variable == 'AHT20_T')
 )
 
 # Execute the query and fetch the results
