@@ -9,6 +9,7 @@ import statistics
 import time
 import pandas as pd
 from sqlalchemy import create_engine
+from smbus2 import SMBus
 
 load_dotenv()
 
