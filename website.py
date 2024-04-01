@@ -109,7 +109,7 @@ df_aht20_t['value'] = df_aht20_t['value'].astype(float)
 
 
 # Create a plot with custom styling
-plt.figure(figsize=(8, 3))
+plt.figure(figsize=(12, 5))
 
 
 plot_with_gaps(df1, color='red', label='TP krotki')
@@ -117,11 +117,11 @@ plot_with_gaps(df2, color='blue', label='TP dlugi')
 plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
 
 
-plt.title('Temperatura na zewnatrz', fontsize=16)
-plt.xlabel('Data', fontsize=12)
-plt.ylabel('stopnie C', fontsize=12)
-plt.xticks(fontsize=10, rotation=45)
-plt.yticks(fontsize=10)
+plt.title('Temperatura na zewnatrz', fontsize=10)
+plt.xlabel('Data', fontsize=8)
+plt.ylabel('stopnie C', fontsize=8)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
@@ -146,15 +146,15 @@ df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
 
 
 # Create a plot with custom styling
-plt.figure(figsize=(8, 3))
+plt.figure(figsize=(12, 5))
 
-plot_with_gaps(df_aht20_rh, color='red', label='Wilgotnosc powietrza AHT20')
+plot_with_gaps(df_aht20_rh, color='green', label='Wilgotnosc powietrza AHT20')
 
-plt.title('Wilgotnosc', fontsize=16)
-plt.xlabel('Data', fontsize=12)
-plt.ylabel('%', fontsize=12)
-plt.xticks(fontsize=10, rotation=45)
-plt.yticks(fontsize=10)
+plt.title('Wilgotnosc', fontsize=10)
+plt.xlabel('Data', fontsize=8)
+plt.ylabel('%', fontsize=8)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
@@ -178,15 +178,15 @@ df3 = df[df['variable']=='28-0000092414da']
 
 
 # Create a plot with custom styling
-plt.figure(figsize=(8, 3))
+plt.figure(figsize=(12, 5))
 
 plot_with_gaps(df3, color='red', label='Temperatura na piecu')
 
-plt.title('Piec', fontsize=16)
-plt.xlabel('Data', fontsize=12)
-plt.ylabel('stopnie C', fontsize=12)
-plt.xticks(fontsize=10, rotation=45)
-plt.yticks(fontsize=10)
+plt.title('Piec', fontsize=10)
+plt.xlabel('Data', fontsize=8)
+plt.ylabel('stopnie C', fontsize=8)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
@@ -213,15 +213,15 @@ df4 = remove_outliers_with_window(df4,'value',window_size=10, threshold=1.5)
 
 
 # Create a plot with custom styling
-plt.figure(figsize=(8, 3))
+plt.figure(figsize=(12, 5))
 #plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
 plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
 
-plt.title('Cisnienie atmosferyczne', fontsize=16)
-plt.xlabel('Data', fontsize=12)
-plt.ylabel('stopnie C', fontsize=12)
-plt.xticks(fontsize=10, rotation=45)
-plt.yticks(fontsize=10)
+plt.title('Cisnienie atmosferyczne', fontsize=10)
+plt.xlabel('Data', fontsize=8)
+plt.ylabel('stopnie C', fontsize=8)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
