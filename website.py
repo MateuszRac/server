@@ -118,14 +118,14 @@ plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
 
 
 plt.title('Temperatura na zewnatrz', fontsize=10)
-plt.xlabel('Data', fontsize=8)
-plt.ylabel('stopnie C', fontsize=8)
+plt.xlabel('Data', fontsize=10)
+plt.ylabel('stopnie C', fontsize=10)
 plt.xticks(fontsize=8, rotation=45)
 plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
-plt.legend(loc='upper left', fontsize=12)
+plt.legend(loc='upper left', fontsize=8)
 
 # Save the plot as an image
 plt.savefig('/var/www/html/tp_week.png', bbox_inches='tight')
@@ -151,14 +151,14 @@ plt.figure(figsize=(12, 5))
 plot_with_gaps(df_aht20_rh, color='green', label='Wilgotnosc powietrza AHT20')
 
 plt.title('Wilgotnosc', fontsize=10)
-plt.xlabel('Data', fontsize=8)
-plt.ylabel('%', fontsize=8)
+plt.xlabel('Data', fontsize=10)
+plt.ylabel('%', fontsize=10)
 plt.xticks(fontsize=8, rotation=45)
 plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
-plt.legend(loc='upper left', fontsize=12)
+plt.legend(loc='upper left', fontsize=8)
 
 # Save the plot as an image
 plt.savefig('/var/www/html/rh_week.png', bbox_inches='tight')
@@ -183,14 +183,14 @@ plt.figure(figsize=(12, 5))
 plot_with_gaps(df3, color='red', label='Temperatura na piecu')
 
 plt.title('Piec', fontsize=10)
-plt.xlabel('Data', fontsize=8)
-plt.ylabel('stopnie C', fontsize=8)
+plt.xlabel('Data', fontsize=10)
+plt.ylabel('stopnie C', fontsize=10)
 plt.xticks(fontsize=8, rotation=45)
 plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
-plt.legend(loc='upper left', fontsize=12)
+plt.legend(loc='upper left', fontsize=8)
 
 # Save the plot as an image
 plt.savefig('/var/www/html/piec_week.png', bbox_inches='tight')
@@ -218,14 +218,14 @@ plt.figure(figsize=(12, 5))
 plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
 
 plt.title('Cisnienie atmosferyczne', fontsize=10)
-plt.xlabel('Data', fontsize=8)
-plt.ylabel('stopnie C', fontsize=8)
+plt.xlabel('Data', fontsize=10)
+plt.ylabel('stopnie C', fontsize=10)
 plt.xticks(fontsize=8, rotation=45)
 plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
 
 # Add legend
-plt.legend(loc='upper left', fontsize=12)
+plt.legend(loc='upper left', fontsize=8)
 
 # Save the plot as an image
 plt.savefig('/var/www/html/p_rel_week.png', bbox_inches='tight')
