@@ -106,6 +106,10 @@ df_aht20_t = df[df['variable']=='AHT20_T']
 df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=10, threshold=1.5)
 df_aht20_t['value'] = df_aht20_t['value'].astype(float)
 
+df_ir = df[df['variable']=='IR_OBJ']
+df_ir = remove_outliers_with_window(df_ir,'value',window_size=10, threshold=1.5)
+df_ir['value'] = df_ir['value'].astype(float)
+
 
 
 # Create a plot with custom styling
@@ -115,6 +119,7 @@ plt.figure(figsize=(12, 5))
 plot_with_gaps(df1, color='red', label='TP krotki')
 plot_with_gaps(df2, color='blue', label='TP dlugi')
 plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
+plot_with_gaps(df_ir, color='green', label='TP IR')
 
 
 plt.title('Temperatura na zewnatrz', fontsize=10)
@@ -239,6 +244,39 @@ plt.close()
 # Close the result proxy and dispose of the engine
 result_proxy.close()
 engine.dispose()
+
+
+
+
+
+#IR
+#df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
+
+
+
+# Create a plot with custom styling
+plt.figure(figsize=(12, 5))
+
+plot_with_gaps(df_ir, color='black', label='Temperatura w podczerwieni')
+
+plt.title('Temperatura - pirometr', fontsize=10)
+plt.xlabel('Data', fontsize=10)
+plt.ylabel('st. C', fontsize=10)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
+plt.grid(True, linestyle='--', alpha=0.7)
+
+# Add legend
+plt.legend(loc='upper left', fontsize=8)
+
+# Save the plot as an image
+plt.savefig('/var/www/html/ir_week.png', bbox_inches='tight')
+
+# Close the plot
+plt.close()
+
+
+
 
 
 
