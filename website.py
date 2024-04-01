@@ -105,15 +105,38 @@ result_set = result_proxy.fetchall()
 # Convert the result set into a Pandas DataFrame
 df2 = pd.DataFrame(result_set, columns=['timestamp', 'value'])
 df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
-df2['value'] = df2['value'].astype(float)+1.7
+df2['value'] = df2['value'].astype(float)
+
+
+
+
+#ATH20
+# Build the select query with the conditions
+query = select([meteo_table.c.timestamp, meteo_table.c.value]).where(
+    (meteo_table.c.timestamp >= seven_days_ago) &
+    (meteo_table.c.variable == 'AHT20_R')
+)
+
+# Execute the query and fetch the results
+result_proxy = engine.execute(query)
+result_set = result_proxy.fetchall()
+
+# Convert the result set into a Pandas DataFrame
+df_aht20_t = pd.DataFrame(result_set, columns=['timestamp', 'value'])
+df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=10, threshold=1.5)
+df_aht20_t['value'] = df_aht20_t['value'].astype(float)
+
+
+
 
 
 # Create a plot with custom styling
 plt.figure(figsize=(10, 6))
 
 
-plot_with_gaps(df1, color='red', label='TP 1.5m')
-plot_with_gaps(df2, color='blue', label='TP grunt')
+plot_with_gaps(df1, color='red', label='TP krotki')
+plot_with_gaps(df2, color='blue', label='TP dlugi')
+plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
 
 
 plt.title('Temperatura na zewnatrz', fontsize=16)
