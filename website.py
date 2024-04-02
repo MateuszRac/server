@@ -2,6 +2,9 @@ import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table, select, func
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+from metpy.calc import dewpoint_from_relative_humidity
+from metpy.units import units
+
 
 
 
@@ -170,6 +173,20 @@ plt.savefig('/var/www/html/rh_week.png', bbox_inches='tight')
 
 # Close the plot
 plt.close()
+
+
+#depoint
+df_aht20_t.set_index('timestamp', inplace=True)
+df_aht20_t_resampled = df_aht20_t.resample('1T').interpolate(method='linear')
+df_aht20_t_resampled = df_aht20_t_resampled.rename(columns={'value': 'tp'})
+
+df_aht20_rh.set_index('timestamp', inplace=True)
+df_aht20_rh_resampled = df_aht20_rh.resample('1T').interpolate(method='linear')
+df_aht20_rh_resampled = df_aht20_rh_resampled.rename(columns={'value': 'rh'})
+
+df_aht20 = pd.merge(df_aht20_t_resampled, df_aht20_rh_resampled, left_index=True, right_index=True)
+
+df_aht20.head(10)
 
 
 
