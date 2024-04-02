@@ -3,7 +3,11 @@ from sqlalchemy import create_engine, MetaData, Table, select, func
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 
 def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold=1.5):
