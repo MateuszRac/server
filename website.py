@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table, select, func
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 
 
