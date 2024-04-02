@@ -377,15 +377,9 @@ with open(file_path, 'r') as file:
 
 
 df1_row = df1.loc[df1['timestamp'].idxmax()]
-df_aht20_t_row = df_aht20_t[df_aht20_t['timestamp'].idxmax()]
+file_content = file_content.replace('_T1_DATE_', df1_row.timestamp.strftime('%Y-%m-%d %H:%M'))
+file_content = file_content.replace('_T1_', "{:.1f}".format(df1_row.value))
 
-
-if df_aht20_t_row.timestamp > df1_row.timestamp:
-    file_content = file_content.replace('_T1_DATE_', df_aht20_t_row.timestamp.strftime('%Y-%m-%d %H:%M'))
-    file_content = file_content.replace('_T1_', "{:.1f}".format(df_aht20_t_row.value))
-else:
-    file_content = file_content.replace('_T1_DATE_', df1_row.timestamp.strftime('%Y-%m-%d %H:%M'))
-    file_content = file_content.replace('_T1_', "{:.1f}".format(df1_row.value))
 
 df2_row = df2.loc[df2['timestamp'].idxmax()]
 file_content = file_content.replace('_T2_DATE_', df2_row.timestamp.strftime('%Y-%m-%d %H:%M'))
