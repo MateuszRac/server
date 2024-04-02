@@ -2,8 +2,6 @@ import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table, select, func
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-from metpy.calc import dewpoint_from_relative_humidity
-from metpy.units import units
 
 
 
@@ -99,7 +97,7 @@ df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
 #T2
 df2 = df[df['variable']=='28-3ce104570b5f']
 df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
-df2['value'] = df2['value'].astype(float)
+df2['value'] = df2['value'].astype(float)+0.8
 
 
 
