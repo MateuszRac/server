@@ -184,6 +184,12 @@ df_aht20_rh_resampled = df_aht20_rh_resampled.rename(columns={'value': 'rh'})
 
 df_aht20 = pd.merge(df_aht20_t_resampled, df_aht20_rh_resampled, left_index=True, right_index=True)
 
+print(df_aht20_t.head(10))
+print(df_aht20_rh.head(10))
+
+print(df_aht20_t_resampled.head(10))
+print(df_aht20_rh_resampled.head(10))
+
 print(df_aht20.head(10))
 
 
