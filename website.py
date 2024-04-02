@@ -377,7 +377,7 @@ with open(file_path, 'r') as file:
 
 
 df1_row = df1.loc[df1['timestamp'].idxmax()]
-df_aht20_t_row = df_aht20_t.df_aht20_t[df1['timestamp'].idxmax()]
+df_aht20_t_row = df_aht20_t[df_aht20_t['timestamp'].idxmax()]
 
 
 if df_aht20_t_row.timestamp > df1_row.timestamp:
