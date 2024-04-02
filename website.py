@@ -97,7 +97,7 @@ df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
 #T2
 df2 = df[df['variable']=='28-3ce104570b5f']
 df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
-df2['value'] = df2['value'].astype(float)+0.9
+df2['value'] = df2['value'].astype(float)+1.1
 
 
 
@@ -176,12 +176,12 @@ plt.close()
 #depoint
 df_aht20_t.set_index('timestamp', inplace=True)
 df_aht20_t['value'] = df_aht20_t['value'].astype(float)
-df_aht20_t_resampled = df_aht20_t.resample('1T').interpolate(method='linear')
+df_aht20_t_resampled = df_aht20_t.resample('1T').ffill(limit=5).interpolate(method='linear')
 df_aht20_t_resampled = df_aht20_t_resampled.rename(columns={'value': 'tp'})
 
 df_aht20_rh.set_index('timestamp', inplace=True)
 df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
-df_aht20_rh_resampled = df_aht20_rh.resample('1T').interpolate(method='linear')
+df_aht20_rh_resampled = df_aht20_rh.resample('1T').ffill(limit=5).interpolate(method='linear')
 df_aht20_rh_resampled = df_aht20_rh_resampled.rename(columns={'value': 'rh'})
 
 df_aht20 = pd.merge(df_aht20_t_resampled, df_aht20_rh_resampled, left_index=True, right_index=True)
