@@ -117,13 +117,13 @@ df = pd.DataFrame(result_set, columns=['variable','timestamp', 'value'])
 
 # Convert the result set into a Pandas DataFrame
 df1 = df[df['variable']=='28-3c6204572bfc']
-df1 = remove_outliers_with_window(df1,'value',window_size=10, threshold=1.5)
+df1 = remove_outliers_with_window(df1,'value',window_size=30, threshold=3.0)
 
 
 
 #T2
 df2 = df[df['variable']=='28-3ce104570b5f']
-df2 = remove_outliers_with_window(df2,'value',window_size=10, threshold=1.5)
+df2 = remove_outliers_with_window(df2,'value',window_size=30, threshold=3.0)
 df2['value'] = df2['value'].astype(float)+1.1
 
 
@@ -131,11 +131,11 @@ df2['value'] = df2['value'].astype(float)+1.1
 
 #ATH20
 df_aht20_t = df[df['variable']=='AHT20_T']
-df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=10, threshold=1.5)
+df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=30, threshold=3.0)
 df_aht20_t['value'] = df_aht20_t['value'].astype(float)
 
 df_ir = df[df['variable']=='IR_OBJ']
-df_ir = remove_outliers_with_window(df_ir,'value',window_size=10, threshold=1.5)
+df_ir = remove_outliers_with_window(df_ir,'value',window_size=30, threshold=3.0)
 df_ir['value'] = df_ir['value'].astype(float)
 
 
@@ -171,7 +171,7 @@ plt.close()
 
 #Wilgotnosc
 df_aht20_rh = df[df['variable']=='AHT20_RH']
-df_aht20_rh = remove_outliers_with_window(df_aht20_rh,'value',window_size=10, threshold=1.5)
+df_aht20_rh = remove_outliers_with_window(df_aht20_rh,'value',window_size=30, threshold=3.0)
 df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
 
 #df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
@@ -298,7 +298,7 @@ plt.close()
 
 #BMP280
 df4 = df[df['variable']=='BMP280_P']
-df4 = remove_outliers_with_window(df4,'value',window_size=10, threshold=1.5)
+df4 = remove_outliers_with_window(df4,'value',window_size=30, threshold=3.0)
 
 
 
