@@ -52,7 +52,32 @@ def plot_with_gaps(df, color, label):
         plt.plot(df['timestamp'], df['value'], color=color, linestyle='-', markersize=5, label=label)
 
 
+def calculate_dewpoint(temp_celsius, relative_humidity):
+    """
+    Calculate dew point in Celsius from temperature in Celsius and relative humidity.
 
+    Args:
+        temp_celsius (float): Temperature in Celsius.
+        relative_humidity (float): Relative humidity (in percentage).
+
+    Returns:
+        float: Dew point temperature in Celsius.
+    """
+    # Magnus-Tetens formula constants
+    a = 17.27
+    b = 237.7
+
+    # Calculate saturated vapor pressure
+    alpha = ((a * temp_celsius) / (b + temp_celsius)) + 273.15
+    saturated_vapor_pressure = 6.112 * 10 ** ((17.67 * temp_celsius) / (temp_celsius + 243.5))
+
+    # Calculate actual vapor pressure
+    actual_vapor_pressure = (relative_humidity / 100) * saturated_vapor_pressure
+
+    # Calculate dew point temperature
+    dew_point = (b * alpha) / (a - alpha + (b * (np.log(actual_vapor_pressure / 6.112))))
+
+    return dew_point
 
 
 
@@ -173,6 +198,17 @@ plt.savefig('/var/www/html/rh_week.png', bbox_inches='tight')
 plt.close()
 
 
+
+
+
+
+
+
+
+
+
+
+
 #depoint
 df_aht20_t.set_index('timestamp', inplace=True)
 df_aht20_t['value'] = df_aht20_t['value'].astype(float)
@@ -185,14 +221,38 @@ df_aht20_rh_resampled = df_aht20_rh.resample('1T').ffill(limit=5).interpolate(me
 df_aht20_rh_resampled = df_aht20_rh_resampled.rename(columns={'value': 'rh'})
 
 df_aht20 = pd.merge(df_aht20_t_resampled, df_aht20_rh_resampled, left_index=True, right_index=True)
+df_aht20 = df_aht20.dropna()
 
-print(df_aht20_t.head(10))
-print(df_aht20_rh.head(10))
+df_aht20['value'] = df_aht20.apply(lambda row: calculate_dewpoint(row['tp'], row['rh']), axis=1)
+df_aht20 = df_aht20.rename_axis('timestamp').reset_index()
 
-print(df_aht20_t_resampled.head(10))
-print(df_aht20_rh_resampled.head(10))
 
-print(df_aht20.head(10))
+# Create a plot with custom styling
+plt.figure(figsize=(12, 5))
+
+plot_with_gaps(df_aht20, color='green', label='Punkt rosy AHT20')
+
+plt.title('Punkt rosy', fontsize=10)
+plt.xlabel('Data', fontsize=10)
+plt.ylabel('stopnie C', fontsize=10)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
+plt.grid(True, linestyle='--', alpha=0.7)
+
+# Add legend
+plt.legend(loc='upper left', fontsize=8)
+
+# Save the plot as an image
+plt.savefig('/var/www/html/dp_week.png', bbox_inches='tight')
+
+# Close the plot
+plt.close()
+
+
+
+
+
+
 
 
 
@@ -247,7 +307,7 @@ plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
 
 plt.title('Cisnienie atmosferyczne', fontsize=10)
 plt.xlabel('Data', fontsize=10)
-plt.ylabel('stopnie C', fontsize=10)
+plt.ylabel('hPa', fontsize=10)
 plt.xticks(fontsize=8, rotation=45)
 plt.yticks(fontsize=8)
 plt.grid(True, linestyle='--', alpha=0.7)
