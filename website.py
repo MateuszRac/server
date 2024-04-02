@@ -64,18 +64,16 @@ def calculate_dewpoint(temp_celsius, relative_humidity):
         float: Dew point temperature in Celsius.
     """
     # Magnus-Tetens formula constants
-    a = 17.27
-    b = 237.7
-
-    # Calculate saturated vapor pressure
-    alpha = ((a * temp_celsius) / (b + temp_celsius)) + 273.15
-    saturated_vapor_pressure = 6.112 * 10 ** ((17.67 * temp_celsius) / (temp_celsius + 243.5))
-
-    # Calculate actual vapor pressure
-    actual_vapor_pressure = (relative_humidity / 100) * saturated_vapor_pressure
-
-    # Calculate dew point temperature
-    dew_point = (b * alpha) / (a - alpha + (b * (np.log(actual_vapor_pressure / 6.112))))
+    
+    a = 6.1121
+    b = 18.678
+    c = 257.14
+    d = 234.5
+    
+    
+    l_t_rh = np.log((relative_humidity/100)*np.exp((b-temp_celsius/d)*(temp_celsius/(c+temp_celsius))))
+    
+    dew_point = (c*l_t_rh)/(b-l_t_rh)
 
     return dew_point
 
