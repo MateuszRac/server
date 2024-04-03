@@ -95,7 +95,7 @@ def plot_night(dates,lon,lat):
     unique_days_list.append((min(dates)+timedelta(days=-1)).date())
     unique_days_list.append((max(dates)+timedelta(days=1)).date())
 
-    sun = Sun(lat, lon)
+    sun = Sun(float(lat), float(lon))
 
     for day in unique_days_list:
         abd_sr = sun.get_sunrise_time(day,tz.gettz('UTC'))
