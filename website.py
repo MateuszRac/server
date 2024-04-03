@@ -88,7 +88,8 @@ def calculate_dewpoint(temp_celsius, relative_humidity):
 
 
 def plot_night(dates,lon,lat):
-
+    
+    dates = pd.to_datetime(dates)
     # Convert set back to list if needed
     unique_days_list = list(set(date.date() for date in dates))
     unique_days_list.append((min(dates)+timedelta(days=-1)).date())
@@ -98,8 +99,9 @@ def plot_night(dates,lon,lat):
 
     for day in unique_days_list:
         abd_sr = sun.get_sunrise_time(day,tz.gettz('UTC'))
-        abd_ss = sun.get_sunset_time(day+timedelta(days=-1),tz.gettz('UTC'))
-
+        abd_ss = sun.get_sunset_time(day,tz.gettz('UTC'))
+        
+        
         if abd_sr < min(dates).replace(tzinfo=tz.gettz('UTC')):
             abd_sr = min(dates).replace(tzinfo=tz.gettz('UTC'))
 
