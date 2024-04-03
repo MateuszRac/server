@@ -6,6 +6,8 @@ import numpy as np
 import os
 from dotenv import load_dotenv
 
+from suntime import Sun
+from dateutil import tz
 
 load_dotenv()
 
@@ -85,7 +87,33 @@ def calculate_dewpoint(temp_celsius, relative_humidity):
 
 
 
+def plot_night(dates,lon,lat):
 
+    # Convert set back to list if needed
+    unique_days_list = list(set(date.date() for date in dates))
+    unique_days_list.append((min(dates)+timedelta(days=-1)).date())
+    unique_days_list.append((max(dates)+timedelta(days=1)).date())
+
+    sun = Sun(lat, lon)
+
+    for day in unique_days_list:
+        abd_sr = sun.get_sunrise_time(day,tz.gettz('UTC'))
+        abd_ss = sun.get_sunset_time(day+timedelta(days=-1),tz.gettz('UTC'))
+
+        if abd_sr < min(dates).replace(tzinfo=tz.gettz('UTC')):
+            abd_sr = min(dates).replace(tzinfo=tz.gettz('UTC'))
+
+        if abd_ss < min(dates).replace(tzinfo=tz.gettz('UTC')):
+            abd_ss = min(dates).replace(tzinfo=tz.gettz('UTC'))
+
+
+        if abd_sr > max(dates).replace(tzinfo=tz.gettz('UTC')):
+            abd_sr = max(dates).replace(tzinfo=tz.gettz('UTC'))
+
+        if abd_ss > max(dates).replace(tzinfo=tz.gettz('UTC')):
+            abd_ss = max(dates).replace(tzinfo=tz.gettz('UTC'))
+
+        plt.axvspan(abd_ss, abd_sr, color='black', alpha=0.1, lw=0)
 
 
 
@@ -149,6 +177,7 @@ plot_with_gaps(df2, color='blue', label='TP dlugi')
 plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
 plot_with_gaps(df_ir, color='green', label='TP IR')
 
+plot_night(row['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
 
 plt.title('Temperatura na zewnatrz', fontsize=10)
 plt.xlabel('Data', fontsize=10)
@@ -182,7 +211,7 @@ df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
 plt.figure(figsize=(12, 5))
 
 plot_with_gaps(df_aht20_rh, color='green', label='Wilgotnosc powietrza AHT20')
-
+plot_night(row['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
 plt.title('Wilgotnosc', fontsize=10)
 plt.xlabel('Data', fontsize=10)
 plt.ylabel('%', fontsize=10)
@@ -233,7 +262,7 @@ df_aht20 = df_aht20.rename_axis('timestamp').reset_index()
 plt.figure(figsize=(12, 5))
 
 plot_with_gaps(df_aht20, color='green', label='Punkt rosy AHT20')
-
+plot_night(row['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
 plt.title('Punkt rosy', fontsize=10)
 plt.xlabel('Data', fontsize=10)
 plt.ylabel('stopnie C', fontsize=10)
@@ -271,7 +300,7 @@ df3 = df[df['variable']=='28-0000092414da']
 plt.figure(figsize=(12, 5))
 
 plot_with_gaps(df3, color='red', label='Temperatura na piecu')
-
+plot_night(row['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
 plt.title('Piec', fontsize=10)
 plt.xlabel('Data', fontsize=10)
 plt.ylabel('stopnie C', fontsize=10)
@@ -306,7 +335,7 @@ df4 = remove_outliers_with_window(df4,'value',window_size=30, threshold=3.0)
 plt.figure(figsize=(12, 5))
 #plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
 plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
-
+plot_night(row['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
 plt.title('Cisnienie atmosferyczne', fontsize=10)
 plt.xlabel('Data', fontsize=10)
 plt.ylabel('hPa', fontsize=10)
