@@ -15,6 +15,36 @@ load_dotenv()
 
 
 
+
+def calculate_dewpoint(temp_celsius, relative_humidity):
+    """
+    Calculate dew point in Celsius from temperature in Celsius and relative humidity.
+
+    Args:
+        temp_celsius (float): Temperature in Celsius.
+        relative_humidity (float): Relative humidity (in percentage).
+
+    Returns:
+        float: Dew point temperature in Celsius.
+    """
+    # Magnus-Tetens formula constants
+    
+    a = 6.1121
+    b = 18.678
+    c = 257.14
+    d = 234.5
+    
+    
+    l_t_rh = np.log((relative_humidity/100)*np.exp((b-temp_celsius/d)*(temp_celsius/(c+temp_celsius))))
+    
+    dew_point = (c*l_t_rh)/(b-l_t_rh)
+
+    return dew_point
+
+
+
+
+
 onewiredir = '/sys/bus/w1/devices/'
 onewire_devices = os.listdir(onewiredir)
 
@@ -184,6 +214,8 @@ t_pressure = 2.0
 
 b_height = os.getenv('B_HEIGHT')
 
+AHT20_T, AHT20_RH = None, None
+
 for var in data_array:
         
     if var['variable']== '28-3ce104570b5f':
@@ -197,7 +229,17 @@ for var in data_array:
     if var['variable'] == 'BMP280_P':
         params['baromin'] = mslp(var['points'][0][1],t_pressure,float(b_height))/33.86389
         
+    if var['variable']== 'AHT20_T':
+        AHT20_T = var['points'][0][1]
+        
+    if var['variable']== 'AHT20_RH':
+        AHT20_RH = var['points'][0][1]
 
+        
+if AHT20_T is not None and AHT20_RH is not None:
+    dewpoint_f = c_to_f(calculate_dewpoint(AHT20_T, AHT20_RH))
+    params['dewptf '] = dewpoint_f
+        
 print(wurl + parse.urlencode(params))
 
 x = requests.get(wurl + parse.urlencode(params))
