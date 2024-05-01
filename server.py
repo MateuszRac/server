@@ -238,7 +238,7 @@ for var in data_array:
         
 if AHT20_T is not None and AHT20_RH is not None:
     dewpoint_f = c_to_f(calculate_dewpoint(AHT20_T, AHT20_RH))
-    params['dewptf '] = dewpoint_f
+    params['dewptf'] = dewpoint_f
         
 print(wurl + parse.urlencode(params))
 
