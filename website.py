@@ -22,7 +22,7 @@ def handler(signum, frame):
 signal.signal(signal.SIGALRM, handler)
 
 # Define timeout, e.g., 5 seconds
-timeout_seconds = 5
+timeout_seconds = os.getenv('timeout')
 signal.alarm(timeout_seconds)
 
 
