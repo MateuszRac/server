@@ -49,11 +49,11 @@ def remove_outliers_with_window_old(dataframe, column_name, window_size=5, thres
 
 def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold=1.5):
     
-    p1 = dataframe[column_name].quantile(0.25)
-    p2 = dataframe[column_name].quantile(0.75)
+    p1 = (dataframe[column_name].astype(float)).quantile(0.25)
+    p2 = (dataframe[column_name].astype(float)).quantile(0.75)
     
-    df1 = dataframe[(dataframe[column_name]>=p1) & (dataframe[column_name]<=p2)]
-    p_avg = df1[column_name].mean()
+    df1 = dataframe[(dataframe[column_name].astype(float)>=p1) & (dataframe[column_name].astype(float)<=p2)]
+    p_avg = (df1[column_name].astype(float)).mean()
     
     
     p_max = p_avg+(p2-p1)*threshold
