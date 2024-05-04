@@ -12,7 +12,21 @@ from dateutil import tz
 load_dotenv()
 
 
-def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold=1.5):
+import signal
+
+# Handler function that raises TimeoutError
+def handler(signum, frame):
+    raise TimeoutError("Timeout!")
+
+# Set the signal handler for SIGALRM
+signal.signal(signal.SIGALRM, handler)
+
+# Define timeout, e.g., 5 seconds
+timeout_seconds = 5
+signal.alarm(timeout_seconds)
+
+
+def remove_outliers_with_window_old(dataframe, column_name, window_size=5, threshold=1.5):
     filtered_indices = []
     
     for i in range(len(dataframe)):
@@ -33,7 +47,19 @@ def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold
         df = dataframe.iloc[filtered_indices]
     return df.reset_index(drop=True)
 
-
+def remove_outliers_with_window(dataframe, column_name, window_size=5, threshold=1.5):
+    
+    p1 = dataframe[column_name].quantile(0.25)
+    p2 = dataframe[column_name].quantile(0.75)
+    
+    df1 = dataframe[(dataframe[column_name]>=p1) & (dataframe[column_name]<=p2)]
+    p_avg = df1[column_name].mean()
+    
+    
+    p_max = p_avg+(p2-p1)*threshold
+    p_min = p_avg-(p2-p1)*threshold
+    
+    return dataframe[(dataframe[column_name]>=p_min) & (dataframe[column_name]<=p_max)]
 
 
 def plot_with_gaps(df, color, label):
@@ -118,117 +144,118 @@ def plot_night(dates,lon,lat):
         plt.axvspan(abd_ss, abd_sr, color='black', alpha=0.1, lw=0)
 
 
+try:
 
+    # Create SQLAlchemy engine
+    engine = create_engine('mysql+pymysql://pi:raspberry@localhost:3306/db')
 
-# Create SQLAlchemy engine
-engine = create_engine('mysql+pymysql://pi:raspberry@localhost:3306/db')
+    # Reflect the necessary table
+    metadata = MetaData()
+    meteo_table = Table('meteo', metadata, autoload=True, autoload_with=engine)
 
-# Reflect the necessary table
-metadata = MetaData()
-meteo_table = Table('meteo', metadata, autoload=True, autoload_with=engine)
+    # Calculate the date 7 days ago
+    seven_days_ago = datetime.now() - timedelta(days=7)
 
-# Calculate the date 7 days ago
-seven_days_ago = datetime.now() - timedelta(days=7)
 
 
+    #T1
+    # Build the select query with the conditions
+    query = select([meteo_table.c.variable,meteo_table.c.timestamp, meteo_table.c.value]).where(
+        (meteo_table.c.timestamp >= seven_days_ago)
+    )
 
-#T1
-# Build the select query with the conditions
-query = select([meteo_table.c.variable,meteo_table.c.timestamp, meteo_table.c.value]).where(
-    (meteo_table.c.timestamp >= seven_days_ago)
-)
+    # Execute the query and fetch the results
+    result_proxy = engine.execute(query)
+    result_set = result_proxy.fetchall()
+    df = pd.DataFrame(result_set, columns=['variable','timestamp', 'value'])
 
-# Execute the query and fetch the results
-result_proxy = engine.execute(query)
-result_set = result_proxy.fetchall()
-df = pd.DataFrame(result_set, columns=['variable','timestamp', 'value'])
 
 
+    # Convert the result set into a Pandas DataFrame
+    df1 = df[df['variable']=='28-3c6204572bfc']
+    df1 = remove_outliers_with_window(df1,'value',window_size=30, threshold=3.0)
 
-# Convert the result set into a Pandas DataFrame
-df1 = df[df['variable']=='28-3c6204572bfc']
-df1 = remove_outliers_with_window(df1,'value',window_size=30, threshold=3.0)
 
 
+    #T2
+    df2 = df[df['variable']=='28-3ce104570b5f']
+    df2 = remove_outliers_with_window(df2,'value',window_size=30, threshold=3.0)
+    df2['value'] = df2['value'].astype(float)+1.1
 
-#T2
-df2 = df[df['variable']=='28-3ce104570b5f']
-df2 = remove_outliers_with_window(df2,'value',window_size=30, threshold=3.0)
-df2['value'] = df2['value'].astype(float)+1.1
 
 
 
+    #ATH20
+    df_aht20_t = df[df['variable']=='AHT20_T']
+    df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=30, threshold=3.0)
+    df_aht20_t['value'] = df_aht20_t['value'].astype(float)
 
-#ATH20
-df_aht20_t = df[df['variable']=='AHT20_T']
-df_aht20_t = remove_outliers_with_window(df_aht20_t,'value',window_size=30, threshold=3.0)
-df_aht20_t['value'] = df_aht20_t['value'].astype(float)
+    df_ir = df[df['variable']=='IR_OBJ']
+    df_ir = remove_outliers_with_window(df_ir,'value',window_size=30, threshold=3.0)
+    df_ir['value'] = df_ir['value'].astype(float)
 
-df_ir = df[df['variable']=='IR_OBJ']
-df_ir = remove_outliers_with_window(df_ir,'value',window_size=30, threshold=3.0)
-df_ir['value'] = df_ir['value'].astype(float)
 
 
+    # Create a plot with custom styling
+    plt.figure(figsize=(12, 5))
 
-# Create a plot with custom styling
-plt.figure(figsize=(12, 5))
 
+    plot_with_gaps(df1, color='red', label='TP krotki')
+    plot_with_gaps(df2, color='blue', label='TP dlugi')
+    plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
+    plot_with_gaps(df_ir, color='green', label='TP IR')
 
-plot_with_gaps(df1, color='red', label='TP krotki')
-plot_with_gaps(df2, color='blue', label='TP dlugi')
-plot_with_gaps(df_aht20_t, color='black', label='TP AHT20')
-plot_with_gaps(df_ir, color='green', label='TP IR')
+    plot_night(df_aht20_t['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
 
-plot_night(df_aht20_t['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
+    plt.title('Temperatura na zewnatrz', fontsize=10)
+    plt.xlabel('Data', fontsize=10)
+    plt.ylabel('stopnie C', fontsize=10)
+    plt.xticks(fontsize=8, rotation=45)
+    plt.yticks(fontsize=8)
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-plt.title('Temperatura na zewnatrz', fontsize=10)
-plt.xlabel('Data', fontsize=10)
-plt.ylabel('stopnie C', fontsize=10)
-plt.xticks(fontsize=8, rotation=45)
-plt.yticks(fontsize=8)
-plt.grid(True, linestyle='--', alpha=0.7)
+    # Add legend
+    plt.legend(loc='upper left', fontsize=8)
 
-# Add legend
-plt.legend(loc='upper left', fontsize=8)
+    # Save the plot as an image
+    plt.savefig('/var/www/html/tp_week.png', bbox_inches='tight')
 
-# Save the plot as an image
-plt.savefig('/var/www/html/tp_week.png', bbox_inches='tight')
+    # Close the plot
+    plt.close()
 
-# Close the plot
-plt.close()
 
 
 
+    #Wilgotnosc
+    df_aht20_rh = df[df['variable']=='AHT20_RH']
+    df_aht20_rh = remove_outliers_with_window(df_aht20_rh,'value',window_size=30, threshold=3.0)
+    df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
 
-#Wilgotnosc
-df_aht20_rh = df[df['variable']=='AHT20_RH']
-df_aht20_rh = remove_outliers_with_window(df_aht20_rh,'value',window_size=30, threshold=3.0)
-df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
+    #df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
-#df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
 
+    # Create a plot with custom styling
+    plt.figure(figsize=(12, 5))
 
-# Create a plot with custom styling
-plt.figure(figsize=(12, 5))
+    plot_with_gaps(df_aht20_rh, color='green', label='Wilgotnosc powietrza AHT20')
+    plot_night(df_aht20_rh['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
+    plt.title('Wilgotnosc', fontsize=10)
+    plt.xlabel('Data', fontsize=10)
+    plt.ylabel('%', fontsize=10)
+    plt.xticks(fontsize=8, rotation=45)
+    plt.yticks(fontsize=8)
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-plot_with_gaps(df_aht20_rh, color='green', label='Wilgotnosc powietrza AHT20')
-plot_night(df_aht20_rh['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
-plt.title('Wilgotnosc', fontsize=10)
-plt.xlabel('Data', fontsize=10)
-plt.ylabel('%', fontsize=10)
-plt.xticks(fontsize=8, rotation=45)
-plt.yticks(fontsize=8)
-plt.grid(True, linestyle='--', alpha=0.7)
+    # Add legend
+    plt.legend(loc='upper left', fontsize=8)
 
-# Add legend
-plt.legend(loc='upper left', fontsize=8)
+    # Save the plot as an image
+    plt.savefig('/var/www/html/rh_week.png', bbox_inches='tight')
 
-# Save the plot as an image
-plt.savefig('/var/www/html/rh_week.png', bbox_inches='tight')
+    # Close the plot
+    plt.close()
 
-# Close the plot
-plt.close()
 
 
 
@@ -241,45 +268,45 @@ plt.close()
 
 
 
+    #depoint
+    df_aht20_t.set_index('timestamp', inplace=True)
+    df_aht20_t['value'] = df_aht20_t['value'].astype(float)
+    df_aht20_t_resampled = df_aht20_t.resample('1T').ffill(limit=5).interpolate(method='linear')
+    df_aht20_t_resampled = df_aht20_t_resampled.rename(columns={'value': 'tp'})
 
-#depoint
-df_aht20_t.set_index('timestamp', inplace=True)
-df_aht20_t['value'] = df_aht20_t['value'].astype(float)
-df_aht20_t_resampled = df_aht20_t.resample('1T').ffill(limit=5).interpolate(method='linear')
-df_aht20_t_resampled = df_aht20_t_resampled.rename(columns={'value': 'tp'})
+    df_aht20_rh.set_index('timestamp', inplace=True)
+    df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
+    df_aht20_rh_resampled = df_aht20_rh.resample('1T').ffill(limit=5).interpolate(method='linear')
+    df_aht20_rh_resampled = df_aht20_rh_resampled.rename(columns={'value': 'rh'})
 
-df_aht20_rh.set_index('timestamp', inplace=True)
-df_aht20_rh['value'] = df_aht20_rh['value'].astype(float)
-df_aht20_rh_resampled = df_aht20_rh.resample('1T').ffill(limit=5).interpolate(method='linear')
-df_aht20_rh_resampled = df_aht20_rh_resampled.rename(columns={'value': 'rh'})
+    df_aht20 = pd.merge(df_aht20_t_resampled, df_aht20_rh_resampled, left_index=True, right_index=True)
+    df_aht20 = df_aht20.dropna()
 
-df_aht20 = pd.merge(df_aht20_t_resampled, df_aht20_rh_resampled, left_index=True, right_index=True)
-df_aht20 = df_aht20.dropna()
+    df_aht20['value'] = df_aht20.apply(lambda row: calculate_dewpoint(row['tp'], row['rh']), axis=1)
+    df_aht20 = df_aht20.rename_axis('timestamp').reset_index()
 
-df_aht20['value'] = df_aht20.apply(lambda row: calculate_dewpoint(row['tp'], row['rh']), axis=1)
-df_aht20 = df_aht20.rename_axis('timestamp').reset_index()
 
+    # Create a plot with custom styling
+    plt.figure(figsize=(12, 5))
 
-# Create a plot with custom styling
-plt.figure(figsize=(12, 5))
+    plot_with_gaps(df_aht20, color='green', label='Punkt rosy AHT20')
+    plot_night(df_aht20['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
+    plt.title('Punkt rosy', fontsize=10)
+    plt.xlabel('Data', fontsize=10)
+    plt.ylabel('stopnie C', fontsize=10)
+    plt.xticks(fontsize=8, rotation=45)
+    plt.yticks(fontsize=8)
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-plot_with_gaps(df_aht20, color='green', label='Punkt rosy AHT20')
-plot_night(df_aht20['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
-plt.title('Punkt rosy', fontsize=10)
-plt.xlabel('Data', fontsize=10)
-plt.ylabel('stopnie C', fontsize=10)
-plt.xticks(fontsize=8, rotation=45)
-plt.yticks(fontsize=8)
-plt.grid(True, linestyle='--', alpha=0.7)
+    # Add legend
+    plt.legend(loc='upper left', fontsize=8)
 
-# Add legend
-plt.legend(loc='upper left', fontsize=8)
+    # Save the plot as an image
+    plt.savefig('/var/www/html/dp_week.png', bbox_inches='tight')
 
-# Save the plot as an image
-plt.savefig('/var/www/html/dp_week.png', bbox_inches='tight')
+    # Close the plot
+    plt.close()
 
-# Close the plot
-plt.close()
 
 
 
@@ -291,33 +318,33 @@ plt.close()
 
 
 
+    #PIEC
+    df3 = df[df['variable']=='28-0000092414da']
+    #df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
-#PIEC
-df3 = df[df['variable']=='28-0000092414da']
-#df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
 
+    # Create a plot with custom styling
+    plt.figure(figsize=(12, 5))
 
-# Create a plot with custom styling
-plt.figure(figsize=(12, 5))
+    plot_with_gaps(df3, color='red', label='Temperatura na piecu')
+    plot_night(df3['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
+    plt.title('Piec', fontsize=10)
+    plt.xlabel('Data', fontsize=10)
+    plt.ylabel('stopnie C', fontsize=10)
+    plt.xticks(fontsize=8, rotation=45)
+    plt.yticks(fontsize=8)
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-plot_with_gaps(df3, color='red', label='Temperatura na piecu')
-plot_night(df3['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
-plt.title('Piec', fontsize=10)
-plt.xlabel('Data', fontsize=10)
-plt.ylabel('stopnie C', fontsize=10)
-plt.xticks(fontsize=8, rotation=45)
-plt.yticks(fontsize=8)
-plt.grid(True, linestyle='--', alpha=0.7)
+    # Add legend
+    plt.legend(loc='upper left', fontsize=8)
 
-# Add legend
-plt.legend(loc='upper left', fontsize=8)
+    # Save the plot as an image
+    plt.savefig('/var/www/html/piec_week.png', bbox_inches='tight')
 
-# Save the plot as an image
-plt.savefig('/var/www/html/piec_week.png', bbox_inches='tight')
+    # Close the plot
+    plt.close()
 
-# Close the plot
-plt.close()
 
 
 
@@ -326,114 +353,119 @@ plt.close()
 
 
 
+    #BMP280
+    df4 = df[df['variable']=='BMP280_P']
+    df4 = remove_outliers_with_window(df4,'value',window_size=30, threshold=3.0)
 
-#BMP280
-df4 = df[df['variable']=='BMP280_P']
-df4 = remove_outliers_with_window(df4,'value',window_size=30, threshold=3.0)
 
 
+    # Create a plot with custom styling
+    plt.figure(figsize=(12, 5))
+    #plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
+    plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
+    plot_night(df4['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
+    plt.title('Cisnienie atmosferyczne', fontsize=10)
+    plt.xlabel('Data', fontsize=10)
+    plt.ylabel('hPa', fontsize=10)
+    plt.xticks(fontsize=8, rotation=45)
+    plt.yticks(fontsize=8)
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-# Create a plot with custom styling
-plt.figure(figsize=(12, 5))
-#plt.plot(df4['timestamp'], df4['value'], color='green', linestyle='-', label='Cisnienie bezwzgledne')
-plot_with_gaps(df4, color='red', label='Cisnienie bezwzgledne')
-plot_night(df4['timestamp'].values,os.getenv('LON'),os.getenv('LAT'))
-plt.title('Cisnienie atmosferyczne', fontsize=10)
-plt.xlabel('Data', fontsize=10)
-plt.ylabel('hPa', fontsize=10)
-plt.xticks(fontsize=8, rotation=45)
-plt.yticks(fontsize=8)
-plt.grid(True, linestyle='--', alpha=0.7)
+    # Add legend
+    plt.legend(loc='upper left', fontsize=8)
 
-# Add legend
-plt.legend(loc='upper left', fontsize=8)
+    # Save the plot as an image
+    plt.savefig('/var/www/html/p_rel_week.png', bbox_inches='tight')
 
-# Save the plot as an image
-plt.savefig('/var/www/html/p_rel_week.png', bbox_inches='tight')
+    # Close the plot
+    plt.close()
 
-# Close the plot
-plt.close()
 
 
 
+    # Close the result proxy and dispose of the engine
+    result_proxy.close()
+    engine.dispose()
 
-# Close the result proxy and dispose of the engine
-result_proxy.close()
-engine.dispose()
 
 
 
 
+    #IR
+    #df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
-#IR
-#df3 = remove_outliers_with_window(df3,'value',window_size=10, threshold=3.5)
 
 
+    # Create a plot with custom styling
+    plt.figure(figsize=(12, 5))
 
-# Create a plot with custom styling
-plt.figure(figsize=(12, 5))
+    plot_with_gaps(df_ir, color='black', label='Temperatura w podczerwieni')
 
-plot_with_gaps(df_ir, color='black', label='Temperatura w podczerwieni')
+    plt.title('Temperatura - pirometr', fontsize=10)
+    plt.xlabel('Data', fontsize=10)
+    plt.ylabel('st. C', fontsize=10)
+    plt.xticks(fontsize=8, rotation=45)
+    plt.yticks(fontsize=8)
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-plt.title('Temperatura - pirometr', fontsize=10)
-plt.xlabel('Data', fontsize=10)
-plt.ylabel('st. C', fontsize=10)
-plt.xticks(fontsize=8, rotation=45)
-plt.yticks(fontsize=8)
-plt.grid(True, linestyle='--', alpha=0.7)
+    # Add legend
+    plt.legend(loc='upper left', fontsize=8)
 
-# Add legend
-plt.legend(loc='upper left', fontsize=8)
+    # Save the plot as an image
+    plt.savefig('/var/www/html/ir_week.png', bbox_inches='tight')
 
-# Save the plot as an image
-plt.savefig('/var/www/html/ir_week.png', bbox_inches='tight')
+    # Close the plot
+    plt.close()
 
-# Close the plot
-plt.close()
 
 
 
 
 
 
+    #html table
 
-#html table
 
 
 
+    file_path = '/var/www/html/template.html'
+    with open(file_path, 'r') as file:
+        file_content = file.read()
 
-file_path = '/var/www/html/template.html'
-with open(file_path, 'r') as file:
-    file_content = file.read()
 
+    df1_row = df1.loc[df1['timestamp'].idxmax()]
+    file_content = file_content.replace('_T1_DATE_', df1_row.timestamp.strftime('%Y-%m-%d %H:%M'))
+    file_content = file_content.replace('_T1_', "{:.1f}".format(df1_row.value))
 
-df1_row = df1.loc[df1['timestamp'].idxmax()]
-file_content = file_content.replace('_T1_DATE_', df1_row.timestamp.strftime('%Y-%m-%d %H:%M'))
-file_content = file_content.replace('_T1_', "{:.1f}".format(df1_row.value))
 
+    df2_row = df2.loc[df2['timestamp'].idxmax()]
+    file_content = file_content.replace('_T2_DATE_', df2_row.timestamp.strftime('%Y-%m-%d %H:%M'))
+    file_content = file_content.replace('_T2_',"{:.1f}".format(df2_row.value))
 
-df2_row = df2.loc[df2['timestamp'].idxmax()]
-file_content = file_content.replace('_T2_DATE_', df2_row.timestamp.strftime('%Y-%m-%d %H:%M'))
-file_content = file_content.replace('_T2_',"{:.1f}".format(df2_row.value))
 
+    df3_row = df3.loc[df3['timestamp'].idxmax()]
+    file_content = file_content.replace('_TPIEC_DATE_', df3_row.timestamp.strftime('%Y-%m-%d %H:%M'))
+    file_content = file_content.replace('_TPIEC_', "{:.1f}".format(df3_row.value))
 
-df3_row = df3.loc[df3['timestamp'].idxmax()]
-file_content = file_content.replace('_TPIEC_DATE_', df3_row.timestamp.strftime('%Y-%m-%d %H:%M'))
-file_content = file_content.replace('_TPIEC_', "{:.1f}".format(df3_row.value))
 
+    df4_row = df4.loc[df4['timestamp'].idxmax()]
+    file_content = file_content.replace('_PABS_DATE_', df4_row.timestamp.strftime('%Y-%m-%d %H:%M'))
+    file_content = file_content.replace('_PABS_', "{:.1f}".format(df4_row.value))
 
-df4_row = df4.loc[df4['timestamp'].idxmax()]
-file_content = file_content.replace('_PABS_DATE_', df4_row.timestamp.strftime('%Y-%m-%d %H:%M'))
-file_content = file_content.replace('_PABS_', "{:.1f}".format(df4_row.value))
 
 
 
 
 
+    # Write the modified content back to the file
+    with open('/var/www/html/index.html', 'w') as file:
+        file.write(file_content)
 
-# Write the modified content back to the file
-with open('/var/www/html/index.html', 'w') as file:
-    file.write(file_content)
 
-
-
+    while True:
+        pass
+except TimeoutError as e:
+    print(e)
+finally:
+    # Disable the alarm
+    signal.alarm(0)
