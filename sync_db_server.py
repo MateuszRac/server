@@ -21,15 +21,11 @@ df_upload = df_upload[['variable','timestamp','value']]
 
 
 
+if len(df_upload)>0:
 
+    # Convert DataFrame to CSV
+    csv_data = df_upload.to_csv(index=False)
+    url = 'https://popruntheworld.pl/raspberry/rpi_batch_upload.php'
 
-
-
-
-
-# Convert DataFrame to CSV
-csv_data = df_upload.to_csv(index=False)
-url = 'https://popruntheworld.pl/raspberry/rpi_batch_upload.php'
-
-response = requests.post(url, files={'csvfile': ('data.csv', csv_data)})
-print(response.text)
+    response = requests.post(url, files={'csvfile': ('data.csv', csv_data)})
+    print(response.text)
