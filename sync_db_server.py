@@ -1,5 +1,5 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import requests
 
 
@@ -29,3 +29,17 @@ if len(df_upload)>0:
 
     response = requests.post(url, files={'csvfile': ('data.csv', csv_data)})
     print(response.text)
+
+
+
+try:
+    # Define the query
+    query = text("DELETE FROM meteo WHERE timestamp <= CURRENT_DATE - INTERVAL 90 DAY;")
+
+    # Execute the query
+    with engine.connect() as connection:
+        connection.execute(query)
+        connection.commit()
+except:
+    print("Error deleting old data from the database.")
+    pass
